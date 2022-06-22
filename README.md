@@ -22,4 +22,27 @@ This includes:
 
 ## Hands-on
 
+### Structural Processing
+Given the low quality and SNR of fMRI images, some registration steps in functional processing involve the use of previously computed transformation during the T1w processing. Importnt steps to have performed are: 
+- BET
+- Standard Space Mapping
+
+In this course, such steps hae already been performed and can be found in BLBALABLA
+
+### Look at the raw data!
+
+``` 
+fsleyes <input_image> &
+```
+### EPI Distortion Correction
+
+### Motion Correction
+
+### Spatial Smoothing
+
+### Temporal Filtering
+
+### Standard Space Mapping
+
+
 
