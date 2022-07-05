@@ -86,8 +86,6 @@ A big issue in raw rs-fMRI scans is the fact that participants usually tend to m
 Head motion results in lower quality (more blurry) images, as well as create spurious correlations between voxels in the brain. 
 Rs-fMRI pre-processing takes care of the motion during the scan by realligning each volume within a scan to a reference volume. The reference volume is usually the first or the middle vollume of the whole sequence. 
 
-EXPLAIN ALIGNMENT*
-
 To perform motion correction with fsl we use the mcflirt command: 
 
 ```
@@ -106,7 +104,7 @@ This processing step is actually made of three different steps.
 1. Compute the registration of the subject T1w scan to MNI space 
 This has been previously run using flirt and fnirt (see above). The output transformation matrix is stored in the /anat folder and called highres2standard_warp.mat
 
-2. Register 
+2. Register the fMRI to the T1w file
 
 ```
 epi_reg --epi=sub-OAS30015_ses-d2004_task-rest_run-01_bold_1volume.nii.gz --t1=../anat/sub-OAS30015_ses-d2004_T1w.nii.gz --t1brain=../anat/sub-OAS30015_ses-d2004_T1w_bet.nii.gz --out=func2highres
