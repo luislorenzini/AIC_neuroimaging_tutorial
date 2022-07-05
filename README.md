@@ -19,7 +19,7 @@ cp -rf oasis/fMRI_tutorial_orig  oasis/fMRI_tutorial
 Now go into the subject folder and list the content to have an idea of what data we are going to use. 
 
 ```
-cd data/fMRI_tutorial 
+cd data/fMRI_tutorial/OAS30015_MR_d2004
 
 ls 
 
@@ -148,7 +148,5 @@ epi_reg --epi=sub-OAS30015_ses-d2004_task-rest_run-01_bold_1volume.nii.gz --t1=.
 convert_xfm -omat func2standard  -concat ../anat/highres2standard.mat func2highres.mat  # concatenate T12standard and fMRI2T1w affine transform
 
 convertwarp --ref=$FSLDIR/data/standard/MNI152_T1_2mm_brain --premat=func2highres.mat --warp1=../anat/highres2standard_warp --out=func2standard_warp # concatenate T12standard non-linear and fMRI2T1w affine transform
-
-
 
 ```
