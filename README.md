@@ -8,10 +8,27 @@ To date, a large amount of pre-processing software are available and can be free
 
 ## Data 
 
-tbd
+In this tutorial we are going to use data from one subject of the OASIS study. 
+Data can be found in the folder oasis/fMRI_tutorial_orig 
+First, copy this folder to your own directory so that you can mess it up as much as you want!
+
+```
+cp -rf oasis/fMRI_tutorial_orig  oasis/fMRI_tutorial 
+```
+
+Now go into the subject folder and list the content to have an idea of what data we are going to use. 
+
+```
+cd data/fMRI_tutorial 
+
+ls 
+
+```
+
+As you can see we will you T1w, in the /anat folder, and fMRI files, in the /func folder. 
 
 ## Overview
-Modern fMRI pre-processing pipelines include a variety of process that can, or cannot, be performed depending on the acquired data quality, ** , and study design. Today, we will have a look at TOT pre-processing steps that are commonly used / OR MAYBE AGREED / in all   BLABLA
+Modern fMRI pre-processing pipelines include a variety of processes that can, or cannot, be performed depending on the acquired data quality, and study design. Today, we will have a look at TOT pre-processing steps that are commonly used / OR MAYBE AGREED / in all   BLABLA
 This includes: 
 
 - EPI Distortion Correction
@@ -95,22 +112,6 @@ mcflirt -in  sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -out mc_sub-OAS
 To keep track of what we are doing, it is good to add a prefix to the output describing the preprocessing steps run on it. So in this case we add `mc_` to our original functional file.
 
 
-### Standard Space Mapping
-
-Brain shape and size strongly vary across different individuals. 
-However, to perform group level analysis, voxels between different brain need to correspond. This can be achieved by "registering" rs-fMRI scans in "native-space" to a standard template. 
-This processing step is actually made of three different steps. 
-
-1. Compute the registration of the subject T1w scan to MNI space 
-This has been previously run using flirt and fnirt (see above). The output transformation matrix is stored in the /anat folder and called highres2standard_warp.mat
-
-2. Register the fMRI to the T1w file
-
-```
-epi_reg --epi=sub-OAS30015_ses-d2004_task-rest_run-01_bold_1volume.nii.gz --t1=../anat/sub-OAS30015_ses-d2004_T1w.nii.gz --t1brain=../anat/sub-OAS30015_ses-d2004_T1w_bet.nii.gz --out=func2highres
-```
-
-
 ### Spatial Smoothing
 
 ```
@@ -125,3 +126,29 @@ For this reason, we usually apply an high-pass filter that eliminates signal var
 
 
 
+### Standard Space Mapping
+
+Brain shape and size strongly vary across different individuals. 
+However, to perform group level analysis, voxels between different brain need to correspond. This can be achieved by "registering" rs-fMRI scans in "native-space" to a standard template. 
+This processing step is actually made of three different steps. 
+
+1. Compute the registration of the subject T1w scan to MNI space 
+This has been previously run using flirt and fnirt (see above). The output transformation matrix is stored in the /anat folder and called highres2standard_warp.mat
+
+2. Register the fMRI to the T1w file
+
+With this function we compute the transformation matrix needed to bring the fMRI file to the T1w space
+```
+epi_reg --epi=sub-OAS30015_ses-d2004_task-rest_run-01_bold_1volume.nii.gz --t1=../anat/sub-OAS30015_ses-d2004_T1w.nii.gz --t1brain=../anat/sub-OAS30015_ses-d2004_T1w_bet.nii.gz --out=func2highres
+```
+
+3. Combine fMRI2T1w and T12MNI transformation, and apply in one go to our timeseries
+
+```
+convert_xfm -omat func2standard  -concat ../anat/highres2standard.mat func2highres.mat  # concatenate T12standard and fMRI2T1w affine transform
+
+convertwarp --ref=$FSLDIR/data/standard/MNI152_T1_2mm_brain --premat=func2highres.mat --warp1=../anat/highres2standard_warp --out=func2standard_warp # concatenate T12standard non-linear and fMRI2T1w affine transform
+
+
+
+```
