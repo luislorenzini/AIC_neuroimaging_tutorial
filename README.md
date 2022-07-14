@@ -187,7 +187,7 @@ By changing the "-s" option we can change the FWHM, increasing or decreasing the
 Rs-fMRI timeseries not only contain signal of interest, but are also charaterized by low-frequency drift due to phyiologial (e.g. respiration) or physical (scanner-related) noise. 
 For this reason, we usually apply an high-pass filter that eliminates signal variations due to low-frequency. To do so, a voxel timeseries can be represented in the frequency domain, and low frequency can be deleted set to 0. 
 
-![alt text](https://github.com/luislorenzini/AIC_Neuroimaging_tutorial/tree/main/figs/FWHM.png)
+![alt text](https://github.com/luislorenzini/AIC_neuroimaging_tutorial/blob/main/figs/FWHM.png)
 
 
 ```
