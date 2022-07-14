@@ -1,4 +1,4 @@
-# Resting-state Functional MRI pre-processing: Short Tutorial 
+# Introduction to Resting-state Functional MRI: A Short Pre-Processing Tutorial 
 
 Raw resting-state functional MRI images are prone to a series of artifacts and variability sources. For this reason, before performing our statistical analysis, we need to apply a series of procedures that aim at removing the sources of signal that we are not interested in, to clean the ones we want to study. All these procedures together are called *pre-processing* .
 This document will guide you through the basic steps that are usually taken in the rs-fMRI pre-processing phase.
@@ -80,12 +80,8 @@ The `&` at the end of the command, allow us to keep working on the command line 
 
 ### EPI Distortion Correction
 
-rs-fMRI scans suffers from geometric distortion due to magnetic field inhomogeneity. For this reason, the first step of fMRI pre-processing is usually to corret for such distortions. 
-To apply this correction, there are two available methods: 
-
-1. TOPUP
-2. FIELDMAP
-
+Some parts of the brain can appear distorted depending on their magnetic properties. One common way to correct the distortions with fMRI data is by acquiring one volume with an opposite phase-encoding direction, and merging the two types of images running [TOPUP](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/topup). In this dataset we don’t have the data required for TOPUP so we will skip this step.
+*Note however that you should run it if your data allows.*
 
 ### Preliminary steps
 
@@ -197,7 +193,7 @@ fslmaths func/sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -bptf 
 ```
 
 
-### Resting state Networks
+### Resting state Networks and Noise Components
 
 Once the data is processed we can try to run an independent component analyis (ICA) on the fMRI timeseries. ICA is usually performed for two reasons:
 1. Identifyy resting state networks (i.e. groups of areas that covary [work] together). This step is often done at the group level. 
