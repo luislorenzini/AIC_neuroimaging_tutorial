@@ -1,14 +1,14 @@
 # Introduction to Resting-state Functional MRI: A Short Pre-Processing Tutorial 
 
-Raw resting-state functional MRI images are prone to a series of artifacts and variability sources. For this reason, before performing our statistical analysis, we need to apply a series of procedures that aim at removing the sources of signal that we are not interested in, to clean the ones we want to study. All these procedures together are called *pre-processing* .
+Raw resting-state functional MRI images are prone to several artifacts and variability sources. For this reason, before performing our statistical analysis, we need to apply a series of procedures that aim at removing the sources of signal that we are not interested in, to clean the ones we want to study. All these procedures together are called *pre-processing*.
 This document will guide you through the basic steps that are usually taken in the rs-fMRI pre-processing phase.
 
 ## Pre-processing Software 
-To date, a large amount of pre-processing software are available and can be freely used to process fMRI data. In this course, we will use FSL to perform pre-processing steps directly from the command line. 
+To date, a large amount of pre-processing software are available and can be freely used. In this course, we will use FSL to perform pre-processing steps directly from the command line. 
 
 ## Data 
 
-In this tutorial we are going to use data from one subject of the OASIS study. 
+In this tutorial we are going to use data from one participant of the OASIS study. 
 Data can be found in the folder oasis/fMRI_tutorial_orig 
 First, copy this folder to your own directory so that you can mess it up as much as you want!
 
@@ -22,26 +22,28 @@ Now go into the subject folder and list the content to have an idea of what data
 cd data/fMRI_tutorial/OAS30015_MR_d2004
 
 ls 
-
 ```
 
-As you can see we will you T1w, in the /anat folder, and fMRI files, in the /func folder. 
+As you can see, for fMRI processing we need high-resolution structural data (T1w in the anat folder) and fMRI files, in the /func folder. 
 
 ## Overview
-Modern fMRI pre-processing pipelines include a variety of processes that can, or cannot, be performed depending on the acquired data quality, and study design. Today, we will have a look at TOT pre-processing steps that are commonly used / OR MAYBE AGREED / in all   BLABLA
-This includes: 
+Modern fMRI pre-processing pipelines include a variety of processes that can, or cannot, be performed depending on the acquired data quality, and study design. Today, we will have a look at some of these pre-processing steps that are commonly used.
+Typical pre-processing steps include:
 
 - EPI Distortion Correction
 - Motion Correction
+- Standard Space Mapping
 - Spatial Smoothing
 - Temporal Filtering 
-- Standard Space Mapping
+- Denoising
 
 ## Hands-on
 
 ### Structural Processing
-Given the low spatial resolution and SNR of fMRI images, some registration steps in functional processing involve the use of previously computed transformation during the T1w processing. Importnt steps to have performed are: 
-Don't run these commands!
+Given the low spatial resolution and SNR of fMRI images, some registration steps in functional processing involve the use of previously computed transformation during the T1w processing. Important steps to have performed are: 
+
+
+*Don't run these commands!*
 
 - Brain extraction with BET
 
@@ -75,7 +77,7 @@ To do so, fsleyes is a great toolbox that can be used by typing on the command l
 fsleyes func/sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz &
 ```
 
-The `&` at the end of the command, allow us to keep working on the command line while having a graphical application (such as fsleyes) opened. 
+The `&` at the end of the command, allow us to keep working on the command line while having a graphical application (such as fsleyes) opened. Nice option for fMRI in fsleyes are the movie option and the timeseries option (-> view -> timeseries). Check them out!
 
 
 ### EPI Distortion Correction
@@ -90,8 +92,8 @@ Run the following code to cut 1 volume in the middle of the functional file:
 
 ```
 fslroi func/sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz func/sub-OAS30015_ses-d2004_task-rest_run-01_bold_1volume  80 1
-
 ```
+
 
 ### Motion Correction
 
@@ -105,7 +107,7 @@ To perform motion correction with fsl we use the mcflirt command:
 mcflirt -in  func/sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -out func/mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold
 
 ```
-To keep track of what we are doing, it is good to add a prefix to the output describing the preprocessing steps run on it. So in this case we add `mc_` to our original functional file.
+To keep track of what we are doing, it is good to add a prefix to the output describing the preprocessing steps run on it. So in this case we add `mc_` (motion corrected) to our original functional file.
 
 we can now have a look at original and motion corrected image by typing 
 
@@ -113,16 +115,17 @@ we can now have a look at original and motion corrected image by typing
 fsleyes func/sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz func/mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold &
 ```
 
-In fsleyes we can use the options in the lower left panel to hide or move images up. Moreover, by clicking on -> View -> Timeseries we can compare the timeseries between different images. 
+In fsleyes we can use the options in the lower left panel to hide or move images up. Can you guess which are the spots of the images that differ more between the two scans?  
 
 
 ### Standard Space Mapping
 
 Brain shape and size strongly vary across different individuals. 
-However, to perform group level analysis, voxels between different brain need to correspond. This can be achieved by "registering" rs-fMRI scans in "native-space" to a standard template. 
+However, to perform group level analysis, voxels between different brain need to correspond. This can be achieved by *registering* or *normalizing* rs-fMRI scans in *native-space* to a standard template. 
 This processing step is actually made of three different steps. 
 
-1. Compute the registration of the subject T1w scan to MNI space 
+1. Compute the registration of the subject T1w scan to MNI space:
+
 This has been previously run using flirt and fnirt (see above). The output transformation matrix is stored in the /anat folder and called highres2standard_warp.mat
 
 2. Register the fMRI to the T1w file
@@ -166,9 +169,14 @@ fsleyes func/MNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz &
 
 ### Spatial Smoothing
 
-With spatial smoothing we refer to the process of averaging the data points (voxels) with their neighbours. The downside of smoothing is that we loose spatial specificity (resolution). However, with this process has the effect of a low pass filter, removing high frequencing and enhancing low frequencing. Morevoer, spatial correlations within the data are more pronounced and activation can be more easily detected. 
+With spatial smoothing we refer to the process of averaging the data points (voxels) with their neighbours. The downside of smoothing is that we loose spatial specificity (resolution). However, with this process has the effect of a low pass filter, removing high frequencing and enhancing low frequencing. Moreover, spatial correlations within the data are more pronounced and activation can be more easily detected. 
+
 In other words: Smoothing fMRI data increase signal to noise ratio. 
+
 The standard procedure for spatial smoothing is applying a gaussisan function of a specific width, called gaussian kernel. The size of the gaussian kernel determines how much the data is smoothed and is expressed with the Full Width at Half Maximum (FWHM). 
+![alt text](https://github.com/luislorenzini/AIC_neuroimaging_tutorial/blob/main/figs/FWHM.png)
+
+There is no standard value for smoothing fMRI data, FWHM usually vary from 2 to 8. I good compromise is to use FWHM of 4. This can be applied with *fslmaths* : 
 
 ```
 fslmaths func/MNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -s 4 func/sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz
@@ -180,38 +188,52 @@ By changing the "-s" option we can change the FWHM, increasing or decreasing the
 
 ### Temporal Filtering
 
-Rs-fMRI timeseries not only contain signal of interest, but are also charaterized by low-frequency drift due to phyiologial (e.g. respiration) or physical (scanner-related) noise. 
-For this reason, we usually apply an high-pass filter that eliminates signal variations due to low-frequency. To do so, a voxel timeseries can be represented in the frequency domain, and low frequency can be deleted set to 0. 
-
-![alt text](https://github.com/luislorenzini/AIC_neuroimaging_tutorial/blob/main/figs/FWHM.png)
+Rs-fMRI timeseries are also charaterized by non-interesting low-frequency drift due to phyiologial (e.g. respiration) or physical (scanner-related) noise. 
+For this reason, we usually apply an high-pass filter that eliminates signal variations due to low-frequency. To do so, a voxel timeseries can be represented in the frequency domain, and low frequency can be set to 0. 
 
 
 ```
-
 fslmaths func/sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -bptf 45.45 1 func/hpsMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz
-
 ```
 
 
 ### Resting state Networks and Noise Components
 
 Once the data is processed we can try to run an independent component analyis (ICA) on the fMRI timeseries. ICA is usually performed for two reasons:
-1. Identifyy resting state networks (i.e. groups of areas that covary [work] together). This step is often done at the group level. 
-2. Identify further sources of noice from the data 
+1. Identify resting state networks, i.e. groups of areas that covary (work) together. This step is often done at the group level. 
+2. Identify further sources of noice from the data, and further remove them (this is called denoising). 
 
 ICA can be run using the melodic command from FSL. 
 
 ```
-melodic -i func/sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -o func/melodic 
+melodic -i func/hpsMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -o func/ICA -m anat/binMNI_sub-OAS30015_ses-d2004_T1w_bet_FAST_pve_1.nii.gz
 ```
-This will create a directory called "melodic" in our func folder
+The "-m" option specify a mask that we want to run the analysis in. In this case we use a mask of the gray matter as there is where the signal we are interested in is. This mask was previously prepared during structural pre-processing and is found in the /anat folder
 
-Open the melodic_IC.nii.gz file in the output folder using fsleyes 
+Melodic will create a directory called "ICA" in our func folder
 
-Can you recognize some of the canonical resting state networks?
+Open the melodic_IC.nii.gz file in the output folder using fsleyes, threshold the values to 3 (commonly used). 
 
-Do you seem some components that you think might be linked to artefacts? You can clean the original signal by writing them down and running: 
+Now chose a nice colormap (usually red) and overlay this to a standard brain template (-> File  -> Add Standard). 
+
+Can you recognize some of the canonical resting state networks? ![alt text](https://github.com/luislorenzini/AIC_neuroimaging_tutorial/blob/main/figs/RSN.png)
+
+Do you see some components that you think might be linked to artefacts? 
+
+You can clean the original signal by writing them down and running: 
 
 ```
-fslregfilt -i sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -o denosised_sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -d func/melodic/melodic_mix -f " 1,2,3"
+fslregfilt -i func/sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -o func/denosised_sMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -d func/ICA/melodic_mix -f " 1,2,3"
 ```
+
+with the "-f" option you can specify the components number that you want to clean from the signal.
+
+
+
+## Conclusion
+
+You should now be able to fully process one fMRI scan yourself! As you know, we usually work with a bunch of data and want to automatize the pre-processing for all the scans, so that we can run it in one go. 
+
+Also following the other sections of this course, try to put all this commands in a *for* loop and use variables to run commands on your files. 
+
+Ciao!
