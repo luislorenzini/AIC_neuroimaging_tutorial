@@ -206,9 +206,10 @@ Once the data is processed we can try to run an independent component analyis (I
 ICA can be run using the melodic command from FSL. 
 
 ```
-melodic -i func/hpsMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -o func/ICA -m anat/binMNI_sub-OAS30015_ses-d2004_T1w_bet_FAST_pve_1.nii.gz
+melodic -i func/hpsMNI_mc_sub-OAS30015_ses-d2004_task-rest_run-01_bold.nii.gz -o func/ICA -m /usr/local/fsl/data/standard/MNI152_T1_2mm_brain_mask.nii.gz
 ```
-The "-m" option specify a mask that we want to run the analysis in. In this case we use a mask of the gray matter as there is where the signal we are interested in is. This mask was previously prepared during structural pre-processing and is found in the /anat folder
+The "-m" option specify a mask that we want to run the analysis in. In this case we use a standard brian mask provided by FSL but you could also create your own mask using the structural segmentation. 
+
 
 Melodic will create a directory called "ICA" in our func folder
 
